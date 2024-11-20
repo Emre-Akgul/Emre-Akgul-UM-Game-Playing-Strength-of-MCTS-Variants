@@ -27,5 +27,3 @@ class VarianceEliminator(FeatureEliminator):
         
         self.feature_mask = feature_variances > self.threshold
         self.feature_indices = [i for i, is_selected in enumerate(self.feature_mask) if is_selected]
-
-
