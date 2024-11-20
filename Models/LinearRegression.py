@@ -1,5 +1,5 @@
 import numpy as np
-from Model import Model
+from .Model import Model
 
 class LinearRegression(Model):
     def __init__(self, fit_method='ols', loss_function="rmse", l1=0, l2=0, learning_rate=0.01, epochs=1000, min_step_size=0.001, gradient_descent='batch', batch_size=32):
@@ -108,7 +108,7 @@ class LinearRegression(Model):
         - y: Target value array for training data. Should be numpy array with shape (n_samples, ).
         """
 
-        self.weights = np.linalg.inv(X.T @ X + self.l2 * np.identity(X.shape[1])) @ X.T @ y
+        self.weights = np.linalg.pinv(X.T @ X + self.l2 * np.identity(X.shape[1])) @ X.T @ y
 
     def _fit_gd(self, X, y):
         if self.gradient_descent == 'batch':
