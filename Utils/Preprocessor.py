@@ -92,6 +92,7 @@ class Preprocessor:
                 df_transformed.drop(columns=col, inplace=True)
 
         df_num = df_transformed
+        self.column_names = df_num.columns
 
         if self.normalize:
             if self.feature_min is None or self.feature_max is None:
@@ -120,3 +121,6 @@ class Preprocessor:
         """
         self.fit(df)
         return self.transform(df)
+    
+    def get_column_names(self):
+        return self.column_names

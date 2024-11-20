@@ -1,6 +1,6 @@
 import numpy as np
-import FeatureEliminator
 
+from .FeatureEliminator import FeatureEliminator
 class VarianceEliminator(FeatureEliminator):
     """
     Eliminates features with variance below a specified threshold.

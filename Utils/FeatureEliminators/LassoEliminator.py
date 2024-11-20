@@ -1,8 +1,8 @@
 import numpy as np
-from FeatureEliminator import FeatureEliminator
-from ...Models.LinearRegression import LinearRegression
+from .FeatureEliminator import FeatureEliminator
+from Models.LinearRegression import LinearRegression
 
-class LassoFeatureEliminator(FeatureEliminator):
+class LassoEliminator(FeatureEliminator):
     """
     Feature eliminator using Lasso (L1 regularization) regression. 
     Features with coefficients close to zero are eliminated.
@@ -28,11 +28,12 @@ class LassoFeatureEliminator(FeatureEliminator):
         Features with coefficients close to zero are eliminated.
         """
         # Fit a Lasso regression model
-        lasso_model = LinearRegression(fit_method='gd', l1=self.l1, loss_function="rmse", epochs=10000, learning_rate=0.01) # high iteration low learning rate my favorite
+        lasso_model = LinearRegression(fit_method='gd', l1=self.l1, loss_function="rmse", epochs=10000, learning_rate=0.1, gradient_descent='mini-batch', batch_size=32)  # high iteration low learning rate my favorite
         lasso_model.fit(self.X, self.y)
 
         # Extract coefficients
         coefficients = lasso_model.weights[1:] # 1: beacuse first one is bias
+        print(coefficients)
 
         # Identify features with coefficients above the threshold
         self.feature_mask = np.abs(coefficients) > self.threshold

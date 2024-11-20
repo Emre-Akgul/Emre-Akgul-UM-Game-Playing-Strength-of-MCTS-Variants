@@ -1,5 +1,5 @@
 import numpy as np
-from FeatureEliminator import FeatureEliminator
+from .FeatureEliminator import FeatureEliminator
 
 class CorrelationEliminator(FeatureEliminator):
     """
@@ -27,13 +27,16 @@ class CorrelationEliminator(FeatureEliminator):
         """
         feature_means = np.mean(self.X, axis=0)
         target_mean = np.mean(self.y)
+
         feature_std = np.sqrt(np.sum((self.X - feature_means) ** 2, axis=0))
         target_std = np.sqrt(np.sum((self.y - target_mean) ** 2))
 
-        y_reshaped = self.y.reshape(-1, 1) # reshape for substracting mean
+        # Ensure `self.y` is a NumPy array and reshape it
+        y_reshaped = np.array(self.y).reshape(-1, 1)
         numerator = np.sum((self.X - feature_means) * (y_reshaped - target_mean), axis=0)
+
         denominator = feature_std * target_std
-        denominator[denominator == 0] = 1000000 # avoid division by zero. Make it zero if denominator is 0.
+        denominator[denominator == 0] = 1e6  # Avoid division by zero
 
         # Compute the correlation coefficients
         feature_correlations = numerator / denominator

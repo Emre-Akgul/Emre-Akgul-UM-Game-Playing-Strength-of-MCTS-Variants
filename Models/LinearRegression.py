@@ -93,7 +93,7 @@ class LinearRegression(Model):
         y_pred = self._predict(X)
 
         if self.loss_function == 'rmse':
-            loss_gradient = - X.T @ (y - y_pred) / (X.shape[0] * np.sqrt(np.mean((y - y_pred) ** 2))) + self.l1 * np.sign(self.weights) + 2 * self.l2 * self.weights
+            loss_gradient = - X.T @ (y - y_pred) / (X.shape[0] * np.sqrt(np.mean((y - y_pred) ** 2))) + self.l1 * np.sign(self.weights) + 2 * self.l2 * self.weights - self.l1 * np.sign(self.weights[0]) - 2 * self.l2 * self.weights[0]
         else:
             raise ValueError("loss_function should be rmse.")
 
@@ -183,6 +183,7 @@ class LinearRegression(Model):
 
         n = X.shape[0]
         current_index = 0
+
         for epoch in range(self.epochs):
             if epoch % n == 0:
                 indices = np.arange(n)
