@@ -24,6 +24,8 @@ class FeatureEliminator(ABC):
         self.feature_indices = None
         self.feature_mask = None
 
+        self.select_features()
+
     @abstractmethod
     def select_features(self):
         """        
@@ -38,7 +40,7 @@ class FeatureEliminator(ABC):
         
         Return numpy ndarray consist of indices to keep.
         """
-        pass
+        return self.feature_indices
 
     def get_feature_mask(self):
         """
@@ -47,5 +49,5 @@ class FeatureEliminator(ABC):
         
         Return numpy ndarray mask.
         """
-        pass
+        return self.feature_mask
 
