@@ -1,1 +1,7 @@
-Data/
+# Ignore specific files
+0- Data/test.csv
+0- Data/data.csv
+0- Data/train.csv
+
+# Ignore all CSV files in the "0- Data" directory
+0- Data/*.csv
