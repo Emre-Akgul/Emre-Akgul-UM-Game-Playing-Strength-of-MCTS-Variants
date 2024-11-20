@@ -1,6 +1,7 @@
 import numpy as np
+from Model import Model
 
-class LinearRegression():
+class LinearRegression(Model):
     def __init__(self, fit_method='ols', loss_function="rmse", l1=0, l2=0, learning_rate=0.01, epochs=1000, min_step_size=0.001, gradient_descent='batch', batch_size=32):
         """
         Initialize the LinearRegression model with a specified fitting method.
@@ -19,6 +20,8 @@ class LinearRegression():
         Notes: 
         - You cant use l1 regularization with ols because there is no closed form solution.
         """
+
+        super().__init__()
 
         # general parameters
         self.fit_method = fit_method
