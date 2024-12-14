@@ -66,7 +66,7 @@ class Preprocessor:
             else:
                 self.feature_mean = df_num.mean(axis=0)
                 self.feature_std = df_num.std(axis=0)
-
+            
     def transform(self, df):
         """
         Transform the data.
