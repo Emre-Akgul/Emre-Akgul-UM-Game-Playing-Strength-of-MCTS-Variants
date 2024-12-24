@@ -15,7 +15,7 @@ class Node():
     
     
 class DecisionTreeRegressor(Model):
-    def __init__(self, min_samples_split=2, max_depth= 100, n_features=None):
+    def __init__(self, min_samples_split=20, max_depth= 100, n_features=None):
         """
         Initialize the DecisionTreeRegressor with minimal parameters.
 
@@ -39,31 +39,39 @@ class DecisionTreeRegressor(Model):
         - X: Input value array for training data. Should be numpy array with shape (n_samples, n_features).
         - y: Target value array for training data. Should be numpy array with shape (n_samples, ).
         """
-        self.n_features = X.shape[1]
-        if self.n_features:
-            self.n_features = min(X.shape[1], self.n_features)
+        total_n_features = X.shape[1]
+        if self.n_features is None:
+            self.n_features = total_n_features
+        else:
+            self.n_features = min(self.n_features, total_n_features)
 
         self.root = self._grow_tree(X, y)
          
     def _grow_tree(self, X, y, depth=0):
         n_samples, n_features = X.shape
-        
-        # check the stopping criteria
-        if (depth >= self.max_depth or n_samples < self.min_samples_split):
+
+        # Stopping criteria
+        if depth >= self.max_depth or n_samples < self.min_samples_split:
             leaf_value = np.mean(y)
             return Node(value=leaf_value)
 
         feat_indices = np.random.choice(n_features, self.n_features, replace=False)
 
-        # find the best split
+        # Find the best split
         best_feature, best_threshold = self._best_split(X, y, feat_indices)
 
-        # create child nodes
+        # If no valid split, return leaf node
+        if best_feature is None or best_threshold is None:
+            leaf_value = np.mean(y)
+            return Node(value=leaf_value)
+
+        # Create child nodes
         left_indices, right_indices = self._split(X[:, best_feature], best_threshold)
-        left = self._grow_tree(X[left_indices], y[left_indices], depth+1)
-        right = self._grow_tree(X[right_indices], y[right_indices], depth+1)
-        
+        left = self._grow_tree(X[left_indices], y[left_indices], depth + 1)
+        right = self._grow_tree(X[right_indices], y[right_indices], depth + 1)
+
         return Node(best_feature, best_threshold, left, right)
+
 
     def _best_split(self, X, y, feat_indices):
         best_gain = float('-inf')
@@ -86,7 +94,12 @@ class DecisionTreeRegressor(Model):
                     split_idx = feat_id
                     split_threshold = threshold
 
+        # Handle case where no split is found
+        if split_idx is None or split_threshold is None:
+            return None, None
+
         return split_idx, split_threshold
+
 
     
     def _information_gain(self, y, X_column, split_threshold):
