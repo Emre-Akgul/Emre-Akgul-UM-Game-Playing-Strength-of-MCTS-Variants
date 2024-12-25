@@ -31,5 +31,8 @@ class KFoldCrossValidation:
             predictions = self.model.predict(X_test)
             self.scores.append(root_mean_squared_error(y_test, predictions))
 
+    def scores(self):
+        return self.scores
+    
     def mean_score(self):
         return sum(self.scores) / len(self.scores)

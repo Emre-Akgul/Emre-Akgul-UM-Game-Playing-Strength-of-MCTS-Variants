@@ -3,16 +3,23 @@ from Models.Model import Model
 from Models.DecisionTreeRegressor import DecisionTreeRegressor
 
 class GradientBoostingRegressor(Model):
-    def __init__(self, learning_rate, n_estimators, max_depth, min_samples_split):
+    def __init__(self, learning_rate, n_estimators, max_depth, min_samples_split, n_features=None):
         super().__init__()
         self.learning_rate = learning_rate
         self.n_estimators = n_estimators
         self.max_depth = max_depth
         self.min_samples_split = min_samples_split
+        self.n_features = n_features
         self.trees = []
         self.base_prediction = None
     
     def fit(self, X, y):
+        if self.n_features is None:
+            # if n_features is not set, use square root of total features
+            self.n_features = int(np.sqrt(X.shape[1])) 
+        else:
+            self.n_features = min(self.n_features, X.shape[1])
+
         # Start with mean prediction
         self.base_prediction = np.mean(y)
         
@@ -23,7 +30,7 @@ class GradientBoostingRegressor(Model):
             residual = y - y_pred
             
             # Fit a decision tree to the residuals
-            tree = DecisionTreeRegressor(max_depth=self.max_depth, min_samples_split=self.min_samples_split)
+            tree = DecisionTreeRegressor(max_depth=self.max_depth, min_samples_split=self.min_samples_split, n_features=self.n_features)
             tree.fit(X, residual)
             self.trees.append(tree)
             

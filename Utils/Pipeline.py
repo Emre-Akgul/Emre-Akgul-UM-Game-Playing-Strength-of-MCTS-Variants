@@ -1,5 +1,6 @@
 from Models.Model import Model
 from Utils.Preprocessor import Preprocessor
+import numpy as np
 
 class Pipeline(Model):
     def __init__(self, preprocessor, model):
@@ -16,6 +17,8 @@ class Pipeline(Model):
         Must be implemented by all subclasses.
         """
         X_p = self.preprocessor.fit_transform(X)
+        X_p = np.array(X_p)
+        y = np.array(y)
         self.model.fit(X_p, y)
 
     def predict(self, X):

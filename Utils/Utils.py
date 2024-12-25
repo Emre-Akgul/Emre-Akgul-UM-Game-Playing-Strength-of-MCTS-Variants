@@ -32,6 +32,44 @@ def initial_preprocessing(df):
     
     return df
 
+def feature_elimination(df):
+    features = ['Balance',
+                'AdvantageP1',
+                'Completion',
+                'OutcomeUniformity',
+                'NumOrthogonalDirections',
+                'MovesPerSecond',
+                'PlayoutsPerSecond',
+                'DurationTurnsStdDev',
+                'PieceNumberChangeAverage',
+                'MoveDistanceMedian',
+                'NumAdjacentDirections',
+                'NumCells',
+                'PieceNumberAverage',
+                'BranchingFactorMedian',
+                'DurationTurnsNotTimeouts',
+                'DecisionFactorMaximum',
+                'NumColumns',
+                'StateTreeComplexity',
+                'MoveDistanceMaximum',
+                'BoardCoverageFull',
+                'NumPerimeterSites',
+                'NumDiagonalDirections',
+                'NumRows',
+                'RemoveEffectFrequency',
+                'PieceNumberVariance',
+                'NumStartComponents',
+                "num_wins_agent1",
+                "num_draws_agent1",
+                "num_losses_agent1",
+                "utility_agent1",
+                ]
+    
+    df = df[features]
+
+    return df
+
+
 def train_test_split(X, y, test_size=0.2, random_state=None):
     """
     Split the X and y into training and testing.

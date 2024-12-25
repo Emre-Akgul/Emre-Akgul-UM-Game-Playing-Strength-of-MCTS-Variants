@@ -2,29 +2,20 @@ import pandas as pd
 import numpy as np
 from Models.Model import Model
 
-class Node():
-    def __init__(self, feature=None, threshold=None, left=None, right=None, value=None):
-        self.feature = feature
+class TreeNode():
+    def __init__(self, feature_index=None, threshold=None, left_child=None, right_child=None, value=None):
+        self.feature_index = feature_index
         self.threshold = threshold
-        self.left = left
-        self.right = right
+        self.left_child = left_child
+        self.right_child = right_child
         self.value = value
 
-    def is_leaf_node(self):
+    def is_leaf(self):
         return self.value is not None
     
     
 class DecisionTreeRegressor(Model):
     def __init__(self, min_samples_split=20, max_depth= 100, n_features=None):
-        """
-        Initialize the DecisionTreeRegressor with minimal parameters.
-
-        Parameters:
-        max_depth: maximum depth of the tree. Integer or None. None is no bound.
-
-        min_samples_split: int, optional (default=20) # statsquest
-            The minimum number of samples required to split an internal node.
-        """
         super().__init__()
         self.max_depth = max_depth
         self.min_samples_split = min_samples_split
@@ -32,48 +23,41 @@ class DecisionTreeRegressor(Model):
         self.root = None
 
     def fit(self, X, y):
-        """
-        Fit the decision tree to the data.
-
-        Parameters:
-        - X: Input value array for training data. Should be numpy array with shape (n_samples, n_features).
-        - y: Target value array for training data. Should be numpy array with shape (n_samples, ).
-        """
         total_n_features = X.shape[1]
         if self.n_features is None:
             self.n_features = total_n_features
         else:
             self.n_features = min(self.n_features, total_n_features)
 
-        self.root = self._grow_tree(X, y)
+        self.root = self._build_tree(X, y)
          
-    def _grow_tree(self, X, y, depth=0):
+    def _build_tree(self, X, y, depth=0):
         n_samples, n_features = X.shape
 
         # Stopping criteria
         if depth >= self.max_depth or n_samples < self.min_samples_split:
             leaf_value = np.mean(y)
-            return Node(value=leaf_value)
+            return TreeNode(value=leaf_value)
 
         feat_indices = np.random.choice(n_features, self.n_features, replace=False)
 
         # Find the best split
-        best_feature, best_threshold = self._best_split(X, y, feat_indices)
+        best_feature, best_threshold = self._find_best_split(X, y, feat_indices)
 
         # If no valid split, return leaf node
         if best_feature is None or best_threshold is None:
             leaf_value = np.mean(y)
-            return Node(value=leaf_value)
+            return TreeNode(value=leaf_value)
 
         # Create child nodes
         left_indices, right_indices = self._split(X[:, best_feature], best_threshold)
-        left = self._grow_tree(X[left_indices], y[left_indices], depth + 1)
-        right = self._grow_tree(X[right_indices], y[right_indices], depth + 1)
+        left = self._build_tree(X[left_indices], y[left_indices], depth + 1)
+        right = self._build_tree(X[right_indices], y[right_indices], depth + 1)
 
-        return Node(best_feature, best_threshold, left, right)
+        return TreeNode(best_feature, best_threshold, left, right)
 
 
-    def _best_split(self, X, y, feat_indices):
+    def _find_best_split(self, X, y, feat_indices):
         best_gain = float('-inf')
         split_idx, split_threshold = None, None
 
@@ -87,7 +71,7 @@ class DecisionTreeRegressor(Model):
                 if X_column[i] == X_column[i - 1]:
                     continue
                 threshold = (X_column[i] + X_column[i - 1]) / 2
-                gain = self._information_gain(y_sorted, X_column, threshold)
+                gain = self._compute_information_gain(y_sorted, X_column, threshold)
 
                 if gain > best_gain:
                     best_gain = gain
@@ -100,9 +84,7 @@ class DecisionTreeRegressor(Model):
 
         return split_idx, split_threshold
 
-
-    
-    def _information_gain(self, y, X_column, split_threshold):
+    def _compute_information_gain(self, y, X_column, split_threshold):
         # Ensure y is a numpy array
         if isinstance(y, pd.Series):
             y = y.values
@@ -132,22 +114,12 @@ class DecisionTreeRegressor(Model):
         return left_indices, right_indices
 
     def predict(self, X):
-        """
-        Predict the target values for given inputs.
-
-        Parameters:
-        - X: Input value array for prediction. Should be numpy array with shape (n_samples, n_features).
-
-        Returns:
-        - y: Predictions values for input array X. numpy array with shape (n_samples, )
-        """
-        
-        return np.array([self._traverse_tree(x, self.root) for x in X])
+        return np.array([self._predict(x, self.root) for x in X])
     
-    def _traverse_tree(self, x, node):
-        if node.is_leaf_node():
+    def _predict(self, x, node):
+        if node.is_leaf():
             return node.value
 
-        if x[node.feature] <= node.threshold:
-            return self._traverse_tree(x, node.left)
-        return self._traverse_tree(x, node.right)
+        if x[node.feature_index] <= node.threshold:
+            return self._predict(x, node.left_child)
+        return self._predict(x, node.right_child)
